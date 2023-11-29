@@ -36,7 +36,13 @@ div#grid .square{
 }
 
 div#grid .square.clicked{
+    background-color: cadetblue;
+}
+div#grid .square.square-even{
     background-color: blue;
+}
+div#grid .square.square-odd{
+    background-color: red;
 }
 
 /**************layout****************/
