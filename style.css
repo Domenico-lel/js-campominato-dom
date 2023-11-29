@@ -28,39 +28,24 @@ div#grid .square{
     align-items: center;
     justify-content: center;
     text-align: center;
+    border: solid 1px #000;
 }
-
-div#grid,
-div#grid .square{
-    border: solid 1px #000; 
-}
-
-div#grid .square.clicked{
-    background-color: cadetblue;
-}
-div#grid .square.square-even{
-    background-color: blue;
-}
-div#grid .square.square-odd{
-    background-color: red;
-}
-
-/**************layout****************/
 
 #navbar{
     height: 70px;
     background-color: #fff;
     display: flex;
-    justify-content:space-between;
+    justify-content: space-between;
     align-items: center;
 }
 
-#container1, footer{
+#container1,
+footer{
     display: flex;
     align-items: center;
 }
 
- img{
+img{
     width: 70px;
 }
 

@@ -7,78 +7,118 @@ Altrimenti la cella cliccata si colora di azzurro e l’utente può continuare a
 La partita termina quando il giocatore clicca su una bomba o quando raggiunge il numero massimo possibile di numeri consentiti (ovvero quando ha rivelato tutte le celle che non sono bombe).
 Al termine della partita il software deve comunicare il punteggio, cioè il numero di volte che l’utente ha cliccato su una cella che non era una bomba.*/
 
-// sezione dell' elemento contenitore e pulsante
+
+
+
+// Ottieni il riferimento all'elemento della griglia e al pulsante di avvio dal DOM
 const gridElement = document.getElementById("grid");
 const startButton = document.getElementById("startButton");
 
-// generare un array di numeri in ordine casuale in un range
-const newArrNum = genArrayRandomNum(1, 64, 64);
+// Definisci costanti per il numero massimo di celle, la percentuale di bombe e le variabili di stato
+const maxCells = 64;
+const bombPercentage = 25;
+let bombCount, bombArray, clickedCount;
 
-for (let i = 1; i <= newArrNum.length; i++) {
-    const newElement = createMyElement("div", "square");
+// Aggiungi un listener per il click al pulsante di avvio
+startButton.addEventListener("click", initializeGame);
 
-    // inseriamo il numero all'interno della cella
-    let numeroCellaIesimo = newArrNum[i];
-    newElement.append(numeroCellaIesimo);
+// Funzione per inizializzare il gioco
+function initializeGame() {
+    // Pulisci la griglia
+    gridElement.innerHTML = "";
 
-    // a seconda che numeroiesimo sia pari o dispari,
-    // inserirò una classe diversa
-    if (numeroCellaIesimo % 2 === 0) {
-        newElement.classList.add("square-even");
-    } else {
-        newElement.classList.add("square-odd");
+    // Calcola il numero di bombe in base alla percentuale
+    bombCount = Math.floor((maxCells * bombPercentage) / 100);
+
+    // Genera una nuova array con le posizioni delle bombe
+    bombArray = generateBombArray(bombCount, maxCells);
+
+    // Inizializza il conteggio dei clic e ascolta il click su ogni cella della griglia
+    clickedCount = 0;
+    for (let i = 1; i <= maxCells; i++) {
+        // Crea un nuovo elemento (cella) nella griglia
+        const newElement = createMyElement("div", "square");
+
+        // Assegna un numero alla cella tramite il dataset
+        newElement.dataset.cellNumber = i;
+
+        // Aggiungi un listener per gestire il click su questa cella
+        newElement.addEventListener("click", handleClick);
+
+        // Aggiungi la cella alla griglia
+        gridElement.append(newElement);
     }
-
-    // Aggiungi il numero come testo all'interno del div
-    newElement.textContent = i;
-
-    newElement.addEventListener("click",
-        function () {
-            this.classList.add("clicked");
-            console.log("hai cliccato la cella:" + i)
-        }
-    );
-
-    gridElement.append(newElement);
 }
 
-startButton.addEventListener("click",
-    function () {
-    // Aggiungi qui la logica di inizio del gioco
-    alert("Il gioco è iniziato!");
+// Funzione per gestire il click su una cella
+function handleClick() {
+    // Ottieni il numero della cella cliccata
+    const cellNumber = parseInt(this.dataset.cellNumber);
+
+    // Se la cella contiene una bomba, aggiungi le classi e termina il gioco
+    if (bombArray.includes(cellNumber)) {
+        // Aggiungi le classi per indicare che la cella è stata cliccata e contiene una bomba
+        this.classList.add("clicked", "bomb");
+
+        // Termina il gioco e mostra il messaggio di perdita
+        endGame(false);
+    } else {
+        // Altrimenti, aggiungi la classe e cambia il colore di sfondo
+        this.classList.add("clicked");
+        this.style.backgroundColor = "blue";
+
+        // Incrementa il conteggio dei clic e verifica se tutte le celle sono state cliccate
+        clickedCount++;
+        const remainingCells = maxCells - bombCount - clickedCount;
+
+        if (remainingCells === 0) {
+            // Se tutte le celle sono state cliccate, termina il gioco e mostra il messaggio di vittoria
+            endGame(true);
+        }
     }
-);
+}
 
-// definizione funzione 
+// Funzione per terminare il gioco e mostrare un messaggio
+function endGame(isWinner) {
+    // Determina il messaggio in base alla vittoria o alla perdita
+    const message = isWinner ? "Hai vinto!" : "Hai perso.";
+
+    // Mostra un alert con il messaggio e il punteggio
+    alert(`${message} Punteggio: ${clickedCount}`);
+
+    // Inizializza un nuovo gioco
+    initializeGame();
+}
+
+// Funzione per generare un array con le posizioni delle bombe
+function generateBombArray(bombCount, maxCells) {
+    const bombArray = [];
+
+    // Continua a generare posizioni casuali finché non raggiungi il numero desiderato di bombe
+    while (bombArray.length < bombCount) {
+        // Genera una posizione casuale
+        const bombPosition = Math.floor(Math.random() * maxCells) + 1;
+
+        // Se la posizione non è già presente nell'array, aggiungila
+        if (!bombArray.includes(bombPosition)) {
+            bombArray.push(bombPosition);
+        }
+    }
+
+    // Restituisci l'array finale con le posizioni delle bombe
+    return bombArray;
+}
+
+// Funzione per creare un nuovo elemento con la classe specificata
 function createMyElement(tagtype, classname) {
-
     const currentElement = document.createElement(tagtype);
+
+    // Aggiungi la classe all'elemento
     currentElement.classList.add(classname);
-    
+
+    // Restituisci l'elemento creato
     return currentElement;
 }
 
-
-
-// funzione che crea un array con ordinamento randomico di numeri in un range (min, max)
-function genArrayRandomNum(minNum, maxNum, lunghezzaArr) {
-    // array da popolare e poi tornare 
-    const arrayToGen = [];
-
-    // ciclo che mi popolerà l'array
-    while (arrayToGen.length < lunghezzaArr) {
-        // generare un numero random in un range (min, max)
-        let newNumber = genRandomNumMinMax(minNum, maxNum);
-        // se il numero generato NON è gia presente nell'array
-        if (!arrayToGen.includes(newNumber)) {
-            // allora lo pusho nell'array
-            arrayToGen.push(newNumber);
-        }
-    }
-    return arrayToGen;
-}
-
-// funzione che genera un numero random in un rantge (min, max)
-function genRandomNumMinMax(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// Inizia il gioco quando la pagina si carica
+initializeGame();
